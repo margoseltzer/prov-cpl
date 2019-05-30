@@ -183,7 +183,7 @@ cb_get_properties(const cpl_id_t id,
 				  const char* key,
 				  const char* value,
 				  void* context)
-{	
+{
 	std::multimap<std::string, std::string>* m
 		= (std::multimap<std::string, std::string>*) context;
 	std::string name = prefix;
@@ -191,7 +191,7 @@ cb_get_properties(const cpl_id_t id,
 	name.append(key);
 	m->insert(std::pair<std::string, std::string>(name,
 				std::string(value)));
-	
+
 	print(L_DEBUG, "  %llx %s:%s = %s",
 			id, prefix, key, value);
 
@@ -217,7 +217,7 @@ cb_get_prefixes(const cpl_id_t id,
 		= (std::multimap<std::string, std::string>*) context;
 	m->insert(std::pair<std::string, std::string>(std::string(prefix),
 				std::string(iri)));
-	
+
 	print(L_DEBUG, "  %llx %s = %s",
 			id, prefix, iri);
 
@@ -586,7 +586,7 @@ test_simple(void)
 	rctx.clear();
 
 	//Bundle relations
-	
+
 	ret = cpl_get_bundle_relations(bun, cb_lookup_relations, &rctx);
 	if (!CPL_IS_OK(ret)) {
         print(L_DEBUG, "cpl_get_bundle_relations --> [%d]", ret);
@@ -633,7 +633,7 @@ test_simple(void)
 
 
     // Object listing
-    
+
     std::vector<cplxx_object_info_t> oiv;
     ret = cpl_get_all_objects("*", 0, cpl_cb_collect_object_info_vector, &oiv);
 	print(L_DEBUG, "cpl_get_all_objects --> %d objects [%d]",
@@ -659,7 +659,7 @@ test_simple(void)
         throw CPLException("Object listing did not return a certain object");
     if (!found3)
         throw CPLException("Object listing did not return a certain object");
-	
+
 	if (with_delays) delay();
 
 	print(L_DEBUG, " ");
@@ -734,22 +734,22 @@ test_simple(void)
 
 	// Object properties
 
-	ret = cpl_add_object_property(obj1, "test", "LABEL", "1");
+	ret = cpl_add_object_property(obj1, "test", "LABEL", "1", "string");
 	print(L_DEBUG, "cpl_add_object_property --> %d", ret);
 	CPL_VERIFY(cpl_add_object_property, ret);
 	if (with_delays) delay();
 
-	ret = cpl_add_object_property(obj2, "test", "LABEL", "2");
+	ret = cpl_add_object_property(obj2, "test", "LABEL", "2", "string");
 	print(L_DEBUG, "cpl_add_object_property --> %d", ret);
 	CPL_VERIFY(cpl_add_object_property, ret);
 	if (with_delays) delay();
 
-	ret = cpl_add_object_property(obj3, "test", "LABEL", "3");
+	ret = cpl_add_object_property(obj3, "test", "LABEL", "3", "string");
 	print(L_DEBUG, "cpl_add_object_property --> %d", ret);
 	CPL_VERIFY(cpl_add_object_property, ret);
 	if (with_delays) delay();
 
-	ret = cpl_add_object_property(obj3, "test", "TAG", "Hello");
+	ret = cpl_add_object_property(obj3, "test", "TAG", "Hello", "string");
 	print(L_DEBUG, "cpl_add_object_property --> %d", ret);
 	CPL_VERIFY(cpl_add_object_property, ret);
 	if (with_delays) delay();

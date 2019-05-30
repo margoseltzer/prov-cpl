@@ -710,8 +710,8 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 
     PREPARE(add_object_property_stmts,
 			"INSERT INTO cpl_object_properties"
-			"            (id, prefix, name, value)"
-			"     VALUES (?, ?, ?, ?);");
+			"            (id, prefix, name, value, type)"
+			"     VALUES (?, ?, ?, ?, ?);");
 
 	PREPARE(add_relation_property_stmts,
 		"INSERT INTO cpl_relation_properties"
@@ -1837,7 +1837,8 @@ cpl_odbc_add_object_property(struct _cpl_db_backend_t* backend,
                       const cpl_id_t id,
                       const char* prefix,
                       const char* key,
-                      const char* value)
+                      const char* value,
+                      const char* type)
 {
     assert(backend != NULL);
     cpl_odbc_t* odbc = (cpl_odbc_t*) backend;
@@ -1854,7 +1855,7 @@ retry:
 	SQL_BIND_VARCHAR(stmt, 2, CPL_PREFIX_LEN, prefix);
 	SQL_BIND_VARCHAR(stmt, 3, CPL_KEY_LEN, key);
 	SQL_BIND_VARCHAR(stmt, 4, CPL_VALUE_LEN, value);
-
+    SQL_BIND_VARCHAR(stmt, 5, CPL_TYPE_LEN, type);
 
 	// Execute
 	

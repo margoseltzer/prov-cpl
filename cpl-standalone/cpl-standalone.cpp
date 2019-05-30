@@ -636,7 +636,8 @@ extern "C" EXPORT cpl_return_t
 cpl_add_object_property(const cpl_id_t id,
 				 const char* prefix,
 				 const char* key,
-                 const char* value)
+                 const char* value,
+                 const char* type)
 {
 	CPL_ENSURE_INITIALIZED;
 
@@ -653,7 +654,8 @@ cpl_add_object_property(const cpl_id_t id,
 											   id,
 											   prefix,
 											   key,
-											   value);
+											   value,
+											   type);
 }
 
 
@@ -827,7 +829,7 @@ cpl_add_bundle_property(const cpl_id_t id,
 					    const char* key,
 					    const char* value)
 {
-	return cpl_add_object_property(id, prefix, key, value);
+	return cpl_add_object_property(id, prefix, key, value, "string");
 };
 
 /**
@@ -1747,18 +1749,21 @@ import_objects_json(const int type,
 			pair = name_to_tokens(it2.key());
 
 			json val_json = *it2;
-			if(!val_json.is_array() && !val_json.is_object()){
-				if(!CPL_IS_OK(cpl_add_object_property(obj_id, 
-													  pair.first.c_str(), 
-													  pair.second.c_str(), 
-													  val_json.get<std::string>().c_str()))){
-					return CPL_E_INTERNAL_ERROR;
-				}
-			} else {
-				if(!CPL_IS_OK(cpl_add_object_property(obj_id, 
-													  pair.first.c_str(), 
-													  pair.second.c_str(), 
-													  val_json.dump().c_str()))){
+            std::string value_type = val_json.type_name();
+            if(val_json.is_string()) {
+                if (!CPL_IS_OK(cpl_add_object_property(obj_id,
+                                                       pair.first.c_str(),
+                                                       pair.second.c_str(),
+                                                       val_json.get<std::string>().c_str(),
+                                                       value_type.c_str()))) {
+                    return CPL_E_INTERNAL_ERROR;
+                }
+            } else {
+				if(!CPL_IS_OK(cpl_add_object_property(obj_id,
+													  pair.first.c_str(),
+													  pair.second.c_str(),
+													  val_json.dump().c_str(),
+                                                      value_type.c_str()))){
 					return CPL_E_INTERNAL_ERROR;
 				}
 			}
