@@ -205,7 +205,18 @@ typedef struct {
      */
     SQLHSTMT* lookup_relation_stmts;
 
-	/**
+    /**
+     * The lock for searching by segment of object property value
+     */
+    sema_t lookup_object_property_sem;
+    mutex_t lookup_object_property_lock;
+
+    /**
+     * The statement for searching by segment of object property value
+     */
+    SQLHSTMT* lookup_object_property_stmts;
+
+    /**
 	 * The lock for add_object_property
 	 */
 	sema_t add_object_property_sem;
