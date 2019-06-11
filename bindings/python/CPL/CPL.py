@@ -500,8 +500,8 @@ class cpl_connection:
         r = cpl_object(idp)
         return r
 
-    def lookup_object_property_substr(self, value):
-        ret, idp = CPLDirect.cpl_lookup_object_property(value)
+    def lookup_object_property_wildcard(self, value):
+        ret, idp = CPLDirect.cpl_lookup_object_property_wildcard(value)
 
         if not CPLDirect.cpl_is_ok(ret):
             raise CPLException('Could not find' +

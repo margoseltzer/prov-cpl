@@ -265,7 +265,7 @@ typedef struct _cpl_db_backend_t {
      * @return CPL_OK or an error code
      */
     cpl_return_t
-    (*cpl_db_lookup_object_property)(struct _cpl_db_backend_t* backend,
+    (*cpl_db_lookup_object_property_wildcard)(struct _cpl_db_backend_t* backend,
                               const char* value,
                               cpl_id_t* out_id);
 

@@ -245,7 +245,7 @@ cpl_lookup_relation(const cpl_id_t from_id,
                     unsigned long long* OUTPUT);
 
 cpl_return_t
-cpl_lookup_object_property(const char* value,
+cpl_lookup_object_property_wildcard(const char* value,
                     unsigned long long* OUTPUT);
 
 cpl_return_t

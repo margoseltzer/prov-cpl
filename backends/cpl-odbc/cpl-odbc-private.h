@@ -208,13 +208,13 @@ typedef struct {
     /**
      * The lock for searching by segment of object property value
      */
-    sema_t lookup_object_property_sem;
-    mutex_t lookup_object_property_lock;
+    sema_t lookup_object_property_wildcard_sem;
+    mutex_t lookup_object_property_wildcard_lock;
 
     /**
      * The statement for searching by segment of object property value
      */
-    SQLHSTMT* lookup_object_property_stmts;
+    SQLHSTMT* lookup_object_property_wildcard_stmts;
 
     /**
 	 * The lock for add_object_property

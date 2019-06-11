@@ -819,13 +819,13 @@ cpl_lookup_relation(const cpl_id_t from_id,
  * @return CPL_OK or an error code
  */
 extern "C" EXPORT cpl_return_t
-cpl_lookup_object_property(const char* value,
+cpl_lookup_object_property_wildcard(const char* value,
                     cpl_id_t* out_id)
 {
     CPL_ENSURE_INITIALIZED;
 
     // Call the database backend
-    return cpl_db_backend->cpl_db_lookup_object_property(cpl_db_backend,
+    return cpl_db_backend->cpl_db_lookup_object_property_wildcard(cpl_db_backend,
                                                          value,
                                                   out_id);
 }
