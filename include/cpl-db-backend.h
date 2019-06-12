@@ -257,7 +257,7 @@ typedef struct _cpl_db_backend_t {
                                cpl_id_t* out_id);
 
     /**
-     * Lookup an object property based on value
+     * Lookup an object property based on value, with wildcards
      *
      * @param backend the pointer to the backend structure
      * @param value the fragment to search for

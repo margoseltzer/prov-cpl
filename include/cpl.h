@@ -769,7 +769,7 @@ cpl_lookup_relation(const cpl_id_t from_id,
                     cpl_id_t* out_id);
 
 /**
- * Search object properties by value
+ * Search object properties by value, with wildcards
  *
  * @param value the value of the object property
  * @return CPL_OK or an error code

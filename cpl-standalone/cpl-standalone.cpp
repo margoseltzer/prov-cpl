@@ -813,7 +813,7 @@ cpl_lookup_relation(const cpl_id_t from_id,
 }
 
 /**
- * Lookup object property by the value
+ * Lookup object property by the value, with wildcards
  *
  * @param fragment the value of the object property
  * @return CPL_OK or an error code

@@ -206,13 +206,13 @@ typedef struct {
     SQLHSTMT* lookup_relation_stmts;
 
     /**
-     * The lock for searching by segment of object property value
+     * The lock for searching by object property value, with wildcards
      */
     sema_t lookup_object_property_wildcard_sem;
     mutex_t lookup_object_property_wildcard_lock;
 
     /**
-     * The statement for searching by segment of object property value
+     * The statement for searching by object property value, with wildcards
      */
     SQLHSTMT* lookup_object_property_wildcard_stmts;
 
