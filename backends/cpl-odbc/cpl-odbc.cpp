@@ -2808,7 +2808,7 @@ retry:
 	if (callback != NULL) {
 		std::list<__get_object_relation__entry_t>::iterator i;
 		for (i = entries.begin(); i != entries.end(); i++) {
-			r = callback(i->relation_id, id, i->other_id, (int) i->type, i->bundle_id, context);
+			r = callback(i->relation_id, id, i->other_id, (int) i->type, context);
 			if (!CPL_IS_OK(r)) return r;
 		}
 	}
@@ -4129,7 +4129,7 @@ retry:
 	if (callback != NULL) {
 		std::list<__get_bundle_relation__entry_t>::iterator i;
 		for (i = entries.begin(); i != entries.end(); i++) {
-			r = callback(i->relation_id, i->from_id, i->to_id, (int) i->type, id, context);
+			r = callback(i->relation_id, i->from_id, i->to_id, (int) i->type, context);
 			if (!CPL_IS_OK(r)) return r;
 		}
 	}

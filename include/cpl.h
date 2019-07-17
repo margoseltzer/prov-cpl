@@ -216,7 +216,6 @@ typedef cpl_return_t (*cpl_relation_iterator_t)
 						 const cpl_id_t query_object_id,
 						 const cpl_id_t other_object_id,
 						 const int type,
-						 const cpl_id_t bundle_id,
 						 void* context);
 
 /**
