@@ -52,7 +52,7 @@ public class ProvFactory{
      */
 	public ProvFactory(String p, String bundleName){
 		prefix = prefix;
-		bundle = CPLBundle.create(bundleName);
+		bundle = CPLBundle.create(bundleName, prefix);
 	}
 
     /**
@@ -87,8 +87,8 @@ public class ProvFactory{
      *
      * @param name bundle name
      */
-	public void setBundle(String name){
-		bundle = CPLBundle.create(name);
+	public void setBundle(String name, String prefix){
+		bundle = CPLBundle.create(name, prefix);
 	}
 
     /**

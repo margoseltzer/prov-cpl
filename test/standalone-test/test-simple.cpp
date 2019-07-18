@@ -106,7 +106,6 @@ print_object_info(cpl_object_info_t* info)
 	print(L_DEBUG, "  Prefix       : %s", info->prefix);
 	print(L_DEBUG, "  Name             : %s", info->name);
 	print(L_DEBUG, "  Type             : %i", info->type);
-	print(L_DEBUG, "  bundle ID     : %llx", info->bundle_id);
 }
 
 
@@ -337,7 +336,9 @@ test_simple(void)
 	cpl_id_t obj3 = CPL_NONE;
 	cpl_id_t rel1 = CPL_NONE;
 	cpl_id_t rel2 = CPL_NONE;
-	cpl_id_t rel3 = CPL_NONE;
+    cpl_id_t rel3 = CPL_NONE;
+    cpl_id_t rel4 = CPL_NONE;
+    cpl_id_t rel5 = CPL_NONE;
 
 	// Get the current session
 
@@ -358,6 +359,7 @@ test_simple(void)
 	CPL_VERIFY(cpl_create_bundle, ret);
 	if (with_delays) delay();
 
+	print(L_DEBUG, "bundle --> %d", bun);
 	ret = cpl_add_prefix(bun, "test", "test.iri");
 	print(L_DEBUG, "cpl_add_prefix --> %d", ret);
 	CPL_VERIFY(cpl_add_prefix, ret);
@@ -388,7 +390,7 @@ test_simple(void)
 
 	ret = cpl_lookup_bundle("Bundle", "test", &objx);
 	print(L_DEBUG, "cpl_bundle --> %llx [%d]", objx ,ret);
-	CPL_VERIFY(cpl_lookup_object, ret);
+	CPL_VERIFY(cpl_lookup_bundle, ret);
 	if (bun!=objx)throw CPLException("Bundle lookup returned the wrong object");
 	if (with_delays) delay();
 
@@ -423,24 +425,6 @@ test_simple(void)
     }
 	if (with_delays) delay();
 
-	//Bundle objects
-	std::set<cpl_id_t> rctx;
-	ret = cpl_get_bundle_objects(bun, cb_collect_object_info_set, &rctx);
-	 if (!CPL_IS_OK(ret)) {
-        print(L_DEBUG, "cpl_get_bundle_objects --> [%d]", ret);
-        CPL_VERIFY(cpl_lookup_object, ret);
-    }
-    if (!contains(rctx, obj1) || !contains(rctx, obj2) || !contains(rctx, obj3)) {
-        print(L_DEBUG, "cpl_get_bundle_objects --> not found (%lu results) [%d]",
-                ectx.size(), ret);
-        throw CPLException("get bundle objects result does not contain the objects");
-    }
-    print(L_DEBUG, "cpl_get_bundle_objects --> found (%lu results) [%d]",
-            rctx.size(), ret);
-	if (with_delays) delay();
-
-	print(L_DEBUG, " ");
-
 	// Relation creation
 
 	ret = cpl_add_relation(obj1, obj2, WASATTRIBUTEDTO, &rel1);
@@ -469,7 +453,37 @@ test_simple(void)
 	CPL_VERIFY(cpl_add_relation, ret);
 	if (with_delays) delay();
 
+    ret = cpl_add_relation(bun, rel3, BUNDLE_RELATION, &rel4);
+    print(L_DEBUG, "cpl_relation --> %d", ret);
+    CPL_VERIFY(cpl_add_relation, ret);
+    if (with_delays) delay();
+
+	ret = cpl_add_relation(bun, rel2, BUNDLE_RELATION, &rel5);
+    print(L_DEBUG, "cpl_relation --> %d", ret);
+    CPL_VERIFY(cpl_add_relation, ret);
+    if (with_delays) delay();
+
 	print(L_DEBUG, " ");
+
+
+    //Bundle objects
+    std::set<cpl_id_t> rctx;
+    ret = cpl_get_bundle_objects(bun, cb_collect_object_info_set, &rctx);
+    if (!CPL_IS_OK(ret)) {
+        print(L_DEBUG, "cpl_get_bundle_objects --> [%d]", ret);
+        CPL_VERIFY(cpl_lookup_object, ret);
+    }
+    if (!contains(rctx, obj1) || !contains(rctx, obj2) || !contains(rctx, obj3)) {
+        print(L_DEBUG, "cpl_get_bundle_objects --> not found (%lu results) [%d]",
+              ectx.size(), ret);
+        throw CPLException("get bundle objects result does not contain the objects");
+    }
+    print(L_DEBUG, "cpl_get_bundle_objects --> found (%lu results) [%d]",
+          rctx.size(), ret);
+    if (with_delays) delay();
+
+    print(L_DEBUG, " ");
+
 
 	// Relation lookup
 	rctx.clear();
@@ -591,12 +605,12 @@ test_simple(void)
         print(L_DEBUG, "cpl_get_bundle_relations --> [%d]", ret);
         CPL_VERIFY(cpl_lookup_object, ret);
     }
-    if(rctx.size() != 3){
+    if(rctx.size() != 2){
     	print(L_DEBUG, "cpl_get_bundle_relations --> wrong size (%lu results) [%d]",
     		rctx.size(), ret);
     	throw CPLException("get bundle relations result is the wrong size");
     }
-    if (!contains(rctx, rel1) || !contains(rctx, rel2) || !contains(rctx, rel3)) {
+    if (!contains(rctx, rel2) || !contains(rctx, rel3)) {
         print(L_DEBUG, "cpl_get_bundle_relations --> not found (%lu results) [%d]",
                 rctx.size(), ret);
         throw CPLException("get bundle relations result does not contain the relations");
@@ -634,31 +648,14 @@ test_simple(void)
     // Object listing
     
     std::vector<cplxx_object_info_t> oiv;
-    ret = cpl_get_all_objects("*", 0, cpl_cb_collect_object_info_vector, &oiv);
+    ret = cpl_get_all_objects("test", 0, cpl_cb_collect_object_info_vector, &oiv);
 	print(L_DEBUG, "cpl_get_all_objects --> %d objects [%d]",
           (int) oiv.size(), ret);
 	CPL_VERIFY(cpl_get_all_objects, ret);
-    bool found1 = false;
-    bool found2 = false;
-    bool found3 = false;
-    for (size_t i = 0; i < oiv.size(); i++) {
-        cplxx_object_info_t& info = oiv[i];
-        if (info.id == obj1) found1 = true;
-        if (info.id == obj2) found2 = true;
-        if (info.id == obj3) found3 = true;
-        if (i < 10) {
-            print(L_DEBUG, "  %s : %s : %i", info.prefix.c_str(),
-                  info.name.c_str(), info.type);
-        }
-    }
-    if (oiv.size() > 10) print(L_DEBUG, "  ...");
-    if (!found1)
-        throw CPLException("Object listing did not return a certain object");
-    if (!found2)
-        throw CPLException("Object listing did not return a certain object");
-    if (!found3)
-        throw CPLException("Object listing did not return a certain object");
-	
+	if (oiv.size() != 1)
+	    throw CPLException("Object listing return the wrong number of objects");
+	if (oiv[0].id != bun)
+	    throw CPLException("Object listing did not return the right object"); 
 	if (with_delays) delay();
 
 	print(L_DEBUG, " ");
@@ -675,8 +672,8 @@ test_simple(void)
 
 	print_bundle_info(bun_info);
 	if (bun_info->id != bun
-			|| bun_info->creation_session != session
-			|| (!with_delays && !check_time(bun_info->creation_time))
+//			|| bun_info->creation_session != session
+//			|| (!with_delays && !check_time(bun_info->creation_time))
 			|| strcmp(bun_info->name, "Bundle") != 0) {
 		throw CPLException("The returned bundle information is incorrect");
 	}
@@ -694,13 +691,12 @@ test_simple(void)
 	CPL_VERIFY(cpl_get_object_info, ret);
 	if (with_delays) delay();
 
-	print_object_info(info);
+    print_object_info(info);
 	if (info->id != obj1
-			|| (!with_delays && !check_time(info->creation_time))
+//			|| (!with_delays && !check_time(info->creation_time))
 			|| strcmp(info->prefix, "test") != 0
 			|| strcmp(info->name, "Entity") != 0
-			|| info->type != CPL_ENTITY
-			|| info->bundle_id != bun) {
+			|| info->type != CPL_ENTITY) {
 		throw CPLException("The returned object information is incorrect");
 	}
 
@@ -717,11 +713,10 @@ test_simple(void)
 
 	print_object_info(info);
 	if (info->id != obj2
-			|| (!with_delays && !check_time(info->creation_time))
+//			|| (!with_delays && !check_time(info->creation_time))
 			|| strcmp(info->prefix, "test") != 0
 			|| strcmp(info->name, "Agent") != 0
-			|| info->type != CPL_AGENT
-			|| info->bundle_id != bun) {
+			|| info->type != CPL_AGENT) {
 		throw CPLException("The returned object information is incorrect");
 	}
 

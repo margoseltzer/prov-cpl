@@ -738,7 +738,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 	PREPARE(get_all_objects_stmts,
 			"SELECT id, creation_time, prefix, name, type"
 			"  FROM cpl_objects"
-			" WHERE id > 0 AND prefix = ?;");
+			" WHERE id > 0 AND type = 4 AND prefix = ?;");
 
 	PREPARE(get_object_info_stmts,
 			"SELECT creation_time, prefix, name, type"
@@ -805,7 +805,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 			" LIMIT 1;");
 
 	PREPARE(get_bundle_objects_stmts,
-            "SELECT C.id, C.creation_time, C.prefix, C.name, C.type"
+            "SELECT DISTINCT C.id, C.creation_time, C.prefix, C.name, C.type"
             " FROM cpl_objects as C, cpl_relations as R1, cpl_relations as R2"
             " WHERE R1.from_id = ? AND R1.type = 20 AND R1.to_id = R2.id"
             "       AND (R2.from_id = C.id OR R2.to_id = C.id);");
@@ -2578,7 +2578,6 @@ retry:
 			e.prefix = entry_prefix;
 			e.name = entry_name;
 			e.type = i->type;
-			e.bundle_id = i->bundle_id;
 
 			r = callback(&e, context);
 			if (!CPL_IS_OK(r)) return r;
@@ -3848,7 +3847,6 @@ retry:
 			e.prefix = entry_prefix;
 			e.name = entry_name;
 			e.type = i->type;
-			e.bundle_id = i->bundle_id;
 
 			r = callback(&e, context);
 			if (!CPL_IS_OK(r)) return r;

@@ -109,7 +109,7 @@ public class CPLRelation {
 	}
 
 	// TODO dest == null case
-	public static CPLRelation create(CPLObject source, CPLObject dest,  int type){
+	public static CPLRelation create(CPLObject source, CPLObject dest, int type){
 
 		BigInteger[] id = {nullId};
 		int r = CPLDirect.cpl_add_relation(source.getId(), dest.getId(), type, id);
@@ -211,16 +211,6 @@ public class CPLRelation {
 	 */
 	public CPLObject getDescendant() {
 		return !otherIsAncestor ? other : base;
-	}
-
-
-	/**
-	 * Get the bundle of the relation
-	 *
-	 * @return the bundle
-	 */
-	public CPLBundle getbundle() {
-		return bundle;
 	}
 
 
