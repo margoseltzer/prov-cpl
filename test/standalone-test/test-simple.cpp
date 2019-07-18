@@ -359,7 +359,6 @@ test_simple(void)
 	CPL_VERIFY(cpl_create_bundle, ret);
 	if (with_delays) delay();
 
-	print(L_DEBUG, "bundle --> %d", bun);
 	ret = cpl_add_prefix(bun, "test", "test.iri");
 	print(L_DEBUG, "cpl_add_prefix --> %d", ret);
 	CPL_VERIFY(cpl_add_prefix, ret);
