@@ -815,6 +815,24 @@ cpl_lookup_relation(const cpl_id_t from_id,
 }
 
 /**
+ * Lookup object property by the value, with wildcards
+ *
+ * @param fragment the value of the object property
+ * @return CPL_OK or an error code
+ */
+extern "C" EXPORT cpl_return_t
+cpl_lookup_object_property_wildcard(const char* value,
+                    cpl_id_t* out_id)
+{
+    CPL_ENSURE_INITIALIZED;
+
+    // Call the database backend
+    return cpl_db_backend->cpl_db_lookup_object_property_wildcard(cpl_db_backend,
+                                                         value,
+                                                  out_id);
+}
+
+/**
  * Add a property to the given relation.
  *
  * @param id the object ID
@@ -1383,7 +1401,6 @@ cpl_cb_collect_relation_vector(const cpl_id_t relation_id,
 							   const cpl_id_t query_object_id,
 							   const cpl_id_t other_object_id,
 							   const int type,
-							   const cpl_id_t bundle_id,
 							   void* context)
 {
 	if (context == NULL) return CPL_E_INVALID_ARGUMENT;
@@ -1393,7 +1410,6 @@ cpl_cb_collect_relation_vector(const cpl_id_t relation_id,
 	e.query_object_id = query_object_id;
 	e.other_object_id = other_object_id;
 	e.type = type;
-	e.bundle_id = bundle_id;
 
 	std::vector<cpl_relation_t>& l =
 		*((std::vector<cpl_relation_t>*) context);

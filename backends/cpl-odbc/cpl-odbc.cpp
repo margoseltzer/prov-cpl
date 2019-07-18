@@ -497,6 +497,7 @@ cpl_odbc_free_statement_handles(cpl_odbc_t* odbc)
 	FREE_HANDLE(lookup_bundle_stmts);
 	FREE_HANDLE(lookup_bundle_ext_stmts);
 	FREE_HANDLE(lookup_relation_stmts);
+	FREE_HANDLE(lookup_object_property_wildcard_stmts);
 	FREE_HANDLE(add_object_property_stmts);
 	FREE_HANDLE(add_relation_property_stmts);
 	FREE_HANDLE(add_bundle_property_stmts);
@@ -597,6 +598,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 	ALLOC_STMT(lookup_bundle_stmts);
 	ALLOC_STMT(lookup_bundle_ext_stmts);
 	ALLOC_STMT(lookup_relation_stmts);
+	ALLOC_STMT(lookup_object_property_wildcard_stmts);
 	ALLOC_STMT(add_object_property_stmts);
 	ALLOC_STMT(add_relation_property_stmts);
 	ALLOC_STMT(add_bundle_property_stmts);
@@ -708,6 +710,11 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
             " WHERE from_id = ? AND to_id = ? AND type = ?"
             " LIMIT 1;");
 
+    PREPARE(lookup_object_property_wildcard_stmts,
+            "SELECT id"
+            "  FROM cpl_object_properties"
+            " WHERE value LIKE ?;");
+
     PREPARE(add_object_property_stmts,
 			"INSERT INTO cpl_object_properties"
 			"            (id, prefix, name, value, type)"
@@ -731,7 +738,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 	PREPARE(get_all_objects_stmts,
 			"SELECT id, creation_time, prefix, name, type"
 			"  FROM cpl_objects"
-			" WHERE id > 0 AND prefix = ? AND type = 4;");
+			" WHERE id > 0 AND type = 4 AND prefix = ?;");
 
 	PREPARE(get_object_info_stmts,
 			"SELECT creation_time, prefix, name, type"
@@ -798,7 +805,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 			" LIMIT 1;");
 
 	PREPARE(get_bundle_objects_stmts,
-            "SELECT C.id, C.creation_time, C.prefix, C.name, C.type"
+            "SELECT DISTINCT C.id, C.creation_time, C.prefix, C.name, C.type"
             " FROM cpl_objects as C, cpl_relations as R1, cpl_relations as R2"
             " WHERE R1.from_id = ? AND R1.type = 20 AND R1.to_id = R2.id"
             "       AND (R2.from_id = C.id OR R2.to_id = C.id);");
@@ -980,6 +987,7 @@ cpl_create_odbc_backend(const char* connection_string,
 	sema_init(odbc->lookup_bundle_sem, 4);
 	sema_init(odbc->lookup_bundle_ext_sem, 4);
 	sema_init(odbc->lookup_relation_sem, 4);
+	sema_init(odbc->lookup_object_property_wildcard_sem, 4);
 	sema_init(odbc->add_object_property_sem, 4);
 	sema_init(odbc->add_relation_property_sem, 4);
 	sema_init(odbc->add_bundle_property_sem, 4);
@@ -1018,6 +1026,7 @@ cpl_create_odbc_backend(const char* connection_string,
 	mutex_init(odbc->lookup_bundle_lock);
 	mutex_init(odbc->lookup_bundle_ext_lock);
 	mutex_init(odbc->lookup_relation_lock);
+	mutex_init(odbc->lookup_object_property_wildcard_lock);
 	mutex_init(odbc->add_object_property_lock);
 	mutex_init(odbc->add_relation_property_lock);
 	mutex_init(odbc->add_bundle_property_lock);
@@ -1070,6 +1079,7 @@ err_sync:
 	sema_destroy(odbc->lookup_bundle_sem);
 	sema_destroy(odbc->lookup_bundle_ext_sem);
 	sema_destroy(odbc->lookup_relation_sem);
+	sema_destroy(odbc->lookup_object_property_wildcard_sem);
 	sema_destroy(odbc->add_object_property_sem);
 	sema_destroy(odbc->add_relation_property_sem);
 	sema_destroy(odbc->add_bundle_property_sem);
@@ -1108,6 +1118,7 @@ err_sync:
 	mutex_destroy(odbc->lookup_bundle_lock);
 	mutex_destroy(odbc->lookup_bundle_ext_lock);
 	mutex_destroy(odbc->lookup_relation_lock);
+	mutex_destroy(odbc->lookup_object_property_wildcard_lock);
 	mutex_destroy(odbc->add_object_property_lock);
 	mutex_destroy(odbc->add_relation_property_lock);
 	mutex_destroy(odbc->add_bundle_property_lock);
@@ -1210,6 +1221,7 @@ cpl_odbc_destroy(struct _cpl_db_backend_t* backend)
 	sema_destroy(odbc->lookup_bundle_sem);
 	sema_destroy(odbc->lookup_bundle_ext_sem);
 	sema_destroy(odbc->lookup_relation_sem);
+	sema_destroy(odbc->lookup_object_property_wildcard_sem);
 	sema_destroy(odbc->add_object_property_sem);
 	sema_destroy(odbc->add_relation_property_sem);
 	sema_destroy(odbc->add_bundle_property_sem);
@@ -1248,6 +1260,7 @@ cpl_odbc_destroy(struct _cpl_db_backend_t* backend)
 	mutex_destroy(odbc->lookup_bundle_lock);
 	mutex_destroy(odbc->lookup_bundle_ext_lock);
 	mutex_destroy(odbc->lookup_relation_lock);
+	mutex_destroy(odbc->lookup_object_property_wildcard_lock);
 	mutex_destroy(odbc->add_object_property_lock);
 	mutex_destroy(odbc->add_relation_property_lock);
 	mutex_destroy(odbc->add_bundle_property_lock);
@@ -2211,6 +2224,43 @@ cpl_odbc_lookup_relation(struct _cpl_db_backend_t* backend,
     return CPL_E_STATEMENT_ERROR;
 }
 
+extern "C" cpl_return_t
+cpl_odbc_lookup_object_property_wildcard(struct _cpl_db_backend_t* backend,
+                         const char* value,
+                         cpl_id_t* out_id) {
+    assert(backend != NULL);
+    cpl_odbc_t* odbc = (cpl_odbc_t*) backend;
+    SQL_START;
+
+    cpl_id_t id = CPL_NONE;
+    cpl_return_t r = CPL_E_INTERNAL_ERROR;
+
+    // Prepare the statement
+    SQLHSTMT stmt = STMT_ACQUIRE(lookup_object_property_wildcard);
+
+    retry:
+    SQL_BIND_VARCHAR(stmt, 1, strlen(value), value);
+
+    // Execute
+    SQL_EXECUTE(stmt);
+
+    // Fetch the result
+    r = cpl_sql_fetch_single_llong(stmt, (long long*) &id, 1);
+    if (!CPL_IS_OK(r)) {
+        STMT_RELEASE(lookup_object_property_wildcard, stmt);
+        return r;
+    }
+
+    // Cleanup
+    STMT_RELEASE(lookup_object_property_wildcard, stmt);
+    if (out_id != NULL) *out_id = id;
+    return CPL_OK;
+
+    // Error handling
+    err:
+    STMT_RELEASE(lookup_object_property_wildcard, stmt);
+    return CPL_E_STATEMENT_ERROR;
+}
 
 /**
  * Add a property to the given bundle
@@ -2529,7 +2579,6 @@ retry:
 			e.prefix = entry_prefix;
 			e.name = entry_name;
 			e.type = i->type;
-			e.bundle_id = i->bundle_id;
 
 			r = callback(&e, context);
 			if (!CPL_IS_OK(r)) return r;
@@ -2759,7 +2808,7 @@ retry:
 	if (callback != NULL) {
 		std::list<__get_object_relation__entry_t>::iterator i;
 		for (i = entries.begin(); i != entries.end(); i++) {
-			r = callback(i->relation_id, id, i->other_id, (int) i->type, i->bundle_id, context);
+			r = callback(i->relation_id, id, i->other_id, (int) i->type, context);
 			if (!CPL_IS_OK(r)) return r;
 		}
 	}
@@ -3799,7 +3848,6 @@ retry:
 			e.prefix = entry_prefix;
 			e.name = entry_name;
 			e.type = i->type;
-			e.bundle_id = i->bundle_id;
 
 			r = callback(&e, context);
 			if (!CPL_IS_OK(r)) return r;
@@ -4080,7 +4128,7 @@ retry:
 	if (callback != NULL) {
 		std::list<__get_bundle_relation__entry_t>::iterator i;
 		for (i = entries.begin(); i != entries.end(); i++) {
-			r = callback(i->relation_id, i->from_id, i->to_id, (int) i->type, id, context);
+			r = callback(i->relation_id, i->from_id, i->to_id, (int) i->type, context);
 			if (!CPL_IS_OK(r)) return r;
 		}
 	}
@@ -4120,6 +4168,7 @@ const cpl_db_backend_t CPL_ODBC_BACKEND = {
 	cpl_odbc_lookup_bundle,
 	cpl_odbc_lookup_bundle_ext,
 	cpl_odbc_lookup_relation,
+	cpl_odbc_lookup_object_property_wildcard,
 	cpl_odbc_add_bundle_property,
 	cpl_odbc_add_prefix,
 	cpl_odbc_has_immediate_ancestor,
