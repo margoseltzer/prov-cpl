@@ -364,17 +364,17 @@ test_simple(void)
 	CPL_VERIFY(cpl_add_prefix, ret);
 	if (with_delays) delay();
 
-	ret = cpl_create_object("test", "Entity", CPL_ENTITY, bun, &obj1);
+	ret = cpl_create_object("test", "Entity", CPL_ENTITY, &obj1);
 	print(L_DEBUG, "cpl_create_object --> %llx [%d]", obj1,ret);
 	CPL_VERIFY(cpl_create_object, ret);
 	if (with_delays) delay();
 
-	ret = cpl_create_object("test", "Agent", CPL_AGENT, bun, &obj2);
+	ret = cpl_create_object("test", "Agent", CPL_AGENT, &obj2);
 	print(L_DEBUG, "cpl_create_object --> %llx [%d]", obj2,ret);
 	CPL_VERIFY(cpl_create_object, ret);
 	if (with_delays) delay();
 
-	ret = cpl_lookup_or_create_object("test", "Activity", CPL_ACTIVITY, bun, &obj3);
+	ret = cpl_lookup_or_create_object("test", "Activity", CPL_ACTIVITY, &obj3);
 	print(L_DEBUG, "cpl_lookup_or_create_object --> %llx [%d]",
 			obj3,ret);
 	CPL_VERIFY(cpl_lookup_or_create_object, ret);
@@ -393,20 +393,20 @@ test_simple(void)
 	if (bun!=objx)throw CPLException("Bundle lookup returned the wrong object");
 	if (with_delays) delay();
 
-	ret = cpl_lookup_object("test", "Entity", CPL_ENTITY, bun, &objx);
+	ret = cpl_lookup_object("test", "Entity", CPL_ENTITY, &objx);
 	print(L_DEBUG, "cpl_lookup_object --> %llx [%d]", objx ,ret);
 	CPL_VERIFY(cpl_lookup_object, ret);
 	if(obj1!=objx)throw CPLException("Object lookup returned the wrong object");
 	if (with_delays) delay();
 
-	ret = cpl_lookup_object("test", "Agent", CPL_AGENT, bun, &objx);
+	ret = cpl_lookup_object("test", "Agent", CPL_AGENT, &objx);
 	print(L_DEBUG, "cpl_lookup_object --> %llx [%d]", objx,ret);
 	CPL_VERIFY(cpl_lookup_object, ret);
 	if(obj2!=objx)throw CPLException("Object lookup returned the wrong object");
 	if (with_delays) delay();
 
     std::map<cpl_id_t, unsigned long> ectx;
-	ret = cpl_lookup_object_ext("test", "Activity", CPL_ACTIVITY, bun, CPL_L_NO_FAIL,
+	ret = cpl_lookup_object_ext("test", "Activity", CPL_ACTIVITY, CPL_L_NO_FAIL,
             cb_lookup_objects, &ectx);
     if (!CPL_IS_OK(ret)) {
         print(L_DEBUG, "cpl_lookup_object_ext --> [%d]", ret);
@@ -452,12 +452,12 @@ test_simple(void)
 	CPL_VERIFY(cpl_add_relation, ret);
 	if (with_delays) delay();
 
-    ret = cpl_add_relation(bun, rel3, BUNDLE_RELATION, &rel4);
+    ret = cpl_add_relation(bun, rel3, BUNDLERELATION, &rel4);
     print(L_DEBUG, "cpl_relation --> %d", ret);
     CPL_VERIFY(cpl_add_relation, ret);
     if (with_delays) delay();
 
-	ret = cpl_add_relation(bun, rel2, BUNDLE_RELATION, &rel5);
+	ret = cpl_add_relation(bun, rel2, BUNDLERELATION, &rel5);
     print(L_DEBUG, "cpl_relation --> %d", ret);
     CPL_VERIFY(cpl_add_relation, ret);
     if (with_delays) delay();
@@ -654,7 +654,7 @@ test_simple(void)
 	if (oiv.size() != 1)
 	    throw CPLException("Object listing return the wrong number of objects");
 	if (oiv[0].id != bun)
-	    throw CPLException("Object listing did not return the right object"); 
+	    throw CPLException("Object listing did not return the right object");
 	if (with_delays) delay();
 
 	print(L_DEBUG, " ");
