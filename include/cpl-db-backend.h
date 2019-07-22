@@ -160,7 +160,7 @@ typedef struct _cpl_db_backend_t {
                            const char* prefix,
                            const char* key,
                            const char* value,
-                           const char* type);
+                           const int type);
 	/**
 	 * Add a relation
 	 *

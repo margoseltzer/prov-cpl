@@ -750,7 +750,7 @@ cpl_odbc_connect(cpl_odbc_t* odbc)
 			" WHERE to_id = ?");
 
 	PREPARE(get_object_properties_stmts,
-			"SELECT id, prefix, name, value"
+			"SELECT id, prefix, name, value, type"
 			"  FROM cpl_object_properties"
 			" WHERE id = ?;");
 
@@ -1795,7 +1795,7 @@ cpl_odbc_add_object_property(struct _cpl_db_backend_t* backend,
                       const char* prefix,
                       const char* key,
                       const char* value,
-                      const char* type)
+                      const int type)
 {
     assert(backend != NULL);
     cpl_odbc_t* odbc = (cpl_odbc_t*) backend;
@@ -1812,7 +1812,7 @@ retry:
 	SQL_BIND_VARCHAR(stmt, 2, CPL_PREFIX_LEN, prefix);
 	SQL_BIND_VARCHAR(stmt, 3, CPL_KEY_LEN, key);
 	SQL_BIND_VARCHAR(stmt, 4, CPL_VALUE_LEN, value);
-    SQL_BIND_VARCHAR(stmt, 5, CPL_TYPE_LEN, type);
+    SQL_BIND_INTEGER(stmt, 5, type);
 
 	// Execute
 	
@@ -2785,6 +2785,7 @@ typedef struct __get_properties__entry {
 	SQLCHAR prefix[CPL_PREFIX_LEN];
 	SQLCHAR key[CPL_KEY_LEN];
 	SQLCHAR value[CPL_VALUE_LEN];
+    int type;
 } __get_properties__entry_t;
 
 
@@ -2861,6 +2862,8 @@ retry:
 			&ind_value);
 	if (!SQL_SUCCEEDED(ret)) goto err_close;
 
+    ret = SQLBindCol(stmt, 5, SQL_C_SLONG, &entry.type, 0, NULL);
+    if (!SQL_SUCCEEDED(ret)) goto err_close;
 
 	// Fetch the result
 
@@ -2914,7 +2917,8 @@ retry:
 			r = callback(id, (const char*) (*i)->prefix, 
 						 (const char*) (*i)->key,
 						 (const char*) (*i)->value,
-						 context);
+                         (int) (*i)->type,
+                         context);
 			if (!CPL_IS_OK(r)) goto err_free;
 		}
 	}
@@ -3037,7 +3041,8 @@ retry:
 	if (callback != NULL) {
 		std::list<cpl_id_t>::iterator i;
 		for (i = entries.begin(); i != entries.end(); i++) {
-			r = callback(*i, prefix, key, value, context);
+		    //TODO ryeo: fix this
+			r = callback(*i, prefix, key, value, 0, context);
 			if (!CPL_IS_OK(r)) return r;
 		}
 	}
@@ -3188,7 +3193,8 @@ retry:
 						 (const char*) (*i)->prefix,
 						 (const char*) (*i)->key,
 						 (const char*) (*i)->value,
-						 context);
+                         (int) (*i)->type,
+                         context);
 			if (!CPL_IS_OK(r)) goto err_free;
 		}
 	}
@@ -3350,7 +3356,8 @@ retry:
 						 (const char*) (*i)->prefix,
 						 (const char*) (*i)->key,
 						 (const char*) (*i)->value,
-						 context);
+                         (int) (*i)->type,
+                         context);
 			if (!CPL_IS_OK(r)) goto err_free;
 		}
 	}

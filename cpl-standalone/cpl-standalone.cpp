@@ -625,31 +625,120 @@ out:
  * @return CPL_OK or an error code
  */
 extern "C" EXPORT cpl_return_t
-cpl_add_object_property(const cpl_id_t id,
+cpl_add_object_string_property(const cpl_id_t id,
 				 const char* prefix,
 				 const char* key,
-                 const char* value,
-                 const char* type)
+                 const char* value)
 {
 	CPL_ENSURE_INITIALIZED;
 
 	// Check the arguments
-
 	CPL_ENSURE_NOT_NONE(id);
 	CPL_ENSURE_NOT_NULL(prefix);
 	CPL_ENSURE_NOT_NULL(key);
-	CPL_ENSURE_NOT_NULL(value);
+    CPL_ENSURE_NOT_NULL(value);
 
     // Call the backend
-
 	return cpl_db_backend->cpl_db_add_object_property(cpl_db_backend,
-											   id,
-											   prefix,
-											   key,
-											   value,
-											   type);
+                                                       id,
+                                                       prefix,
+                                                       key,
+                                                       value,
+                                                       STRINGPROPERTY);
 }
 
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the namespace prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+extern "C" EXPORT cpl_return_t
+cpl_add_object_integer_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const int value)
+{
+    CPL_ENSURE_INITIALIZED;
+
+    // Check the arguments
+    CPL_ENSURE_NOT_NONE(id);
+    CPL_ENSURE_NOT_NULL(prefix);
+    CPL_ENSURE_NOT_NULL(key);
+
+    // Call the backend
+    return cpl_db_backend->cpl_db_add_object_property(cpl_db_backend,
+                                                      id,
+                                                      prefix,
+                                                      key,
+                                                      std::to_string(value).c_str(),
+                                                      INTEGERPROPERTY);
+}
+
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the namespace prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+extern "C" EXPORT cpl_return_t
+cpl_add_object_float_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const float value)
+{
+    CPL_ENSURE_INITIALIZED;
+
+    // Check the arguments
+    CPL_ENSURE_NOT_NONE(id);
+    CPL_ENSURE_NOT_NULL(prefix);
+    CPL_ENSURE_NOT_NULL(key);
+
+    // Call the backend
+    return cpl_db_backend->cpl_db_add_object_property(cpl_db_backend,
+                                                      id,
+                                                      prefix,
+                                                      key,
+                                                      std::to_string(value).c_str(),
+                                                      FLOATPROPERTY);
+}
+
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the namespace prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+extern "C" EXPORT cpl_return_t
+cpl_add_object_boolean_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const bool value)
+{
+    CPL_ENSURE_INITIALIZED;
+
+    // Check the arguments
+    CPL_ENSURE_NOT_NONE(id);
+    CPL_ENSURE_NOT_NULL(prefix);
+    CPL_ENSURE_NOT_NULL(key);
+
+    // Call the backend
+    return cpl_db_backend->cpl_db_add_object_property(cpl_db_backend,
+                                                      id,
+                                                      prefix,
+                                                      key,
+                                                      std::to_string(value).c_str(),
+                                                      BOOLEANPROPERTY);
+}
 
 /**
  * Add a relation between two objects.
@@ -837,7 +926,7 @@ cpl_add_bundle_property(const cpl_id_t id,
 					    const char* key,
 					    const char* value)
 {
-	return cpl_add_object_property(id, prefix, key, value, "string");
+	return cpl_add_object_string_property(id, prefix, key, value);
 };
 
 /**
@@ -1427,6 +1516,7 @@ cpl_cb_collect_properties_vector(const cpl_id_t id,
 	                             const char* prefix,
 								 const char* key,
 								 const char* value,
+								 const int type,
 								 void* context)
 {
 	if (context == NULL) return CPL_E_INVALID_ARGUMENT;
@@ -1436,6 +1526,7 @@ cpl_cb_collect_properties_vector(const cpl_id_t id,
 	e.prefix = prefix;
 	e.key = key;
 	e.value = value;
+	e.type = type;
 
 	std::vector<cplxx_property_entry_t>& l =
 		*((std::vector<cplxx_property_entry_t>*) context);
@@ -1726,7 +1817,6 @@ import_bundle_prefixes_json(const cpl_id_t bundle,
 cpl_return_t
 import_objects_json(const int type,
 					const std::string& type_str,
-					const cpl_id_t bundle_id,
 					std::map<std::string, cpl_id_t>& lookup_tbl,
 					json& document)
 {
@@ -1754,23 +1844,39 @@ import_objects_json(const int type,
 			pair = name_to_tokens(it2.key());
 
 			json val_json = *it2;
-            std::string value_type = val_json.type_name();
-            if(val_json.is_string()) {
-                if (!CPL_IS_OK(cpl_add_object_property(obj_id,
-                                                       pair.first.c_str(),
-                                                       pair.second.c_str(),
-                                                       val_json.get<std::string>().c_str(),
-                                                       value_type.c_str()))) {
-                    return CPL_E_INTERNAL_ERROR;
-                }
-            } else {
-				if(!CPL_IS_OK(cpl_add_object_property(obj_id,
-													  pair.first.c_str(),
-													  pair.second.c_str(),
-													  val_json.dump().c_str(),
-                                                      value_type.c_str()))){
-					return CPL_E_INTERNAL_ERROR;
-				}
+			switch (val_json.type()) {
+                case json::value_t::string:
+                    cpl_add_object_string_property(obj_id,
+                                                   pair.first.c_str(),
+                                                   pair.second.c_str(),
+                                                   val_json.get<std::string>().c_str());
+                    break;
+                case json::value_t::number_integer:
+                    cpl_add_object_integer_property(obj_id,
+                                                    pair.first.c_str(),
+                                                    pair.second.c_str(),
+                                                    val_json.get<int>());
+                    break;
+                case json::value_t::number_unsigned:
+                    cpl_add_object_integer_property(obj_id,
+                                                    pair.first.c_str(),
+                                                    pair.second.c_str(),
+                                                    val_json.get<int>());
+                    break;
+                case json::value_t::number_float:
+                    cpl_add_object_float_property(obj_id,
+                                                  pair.first.c_str(),
+                                                  pair.second.c_str(),
+                                                  val_json.get<float>());
+                    break;
+                case json::value_t::boolean:
+                    cpl_add_object_boolean_property(obj_id,
+                                                    pair.first.c_str(),
+                                                    pair.second.c_str(),
+                                                    val_json.get<bool>());
+                    break;
+			    default:
+                    return CPL_E_INVALID_ARGUMENT;
 			}
 		}
 	}
@@ -1847,6 +1953,9 @@ import_relations_json(const cpl_id_t bundle_id,
 				if(!CPL_IS_OK(cpl_add_relation(source, dest, entry.type, &relation_id))){
 					return CPL_E_INTERNAL_ERROR;
 				}
+                if(!CPL_IS_OK(cpl_add_relation(bundle_id, relation_id, BUNDLERELATION, NULL))){
+                    return CPL_E_INTERNAL_ERROR;
+                }
 
 				json properties = it.value();
 				for (json::iterator it2 = properties.begin(); it2 != properties.end(); ++it2){
@@ -1919,13 +2028,13 @@ import_document_json(const std::string& json_string,
 		goto error;
 	}
 	// Import objects
-	if(!CPL_IS_OK(import_objects_json(CPL_ENTITY, CPL_ENTITY_STR, bundle_id, lookup_tbl, document))){
+	if(!CPL_IS_OK(import_objects_json(CPL_ENTITY, CPL_ENTITY_STR, lookup_tbl, document))){
 		goto error;
 	}
-	if(!CPL_IS_OK(import_objects_json(CPL_AGENT, CPL_AGENT_STR, bundle_id, lookup_tbl, document))){
+	if(!CPL_IS_OK(import_objects_json(CPL_AGENT, CPL_AGENT_STR, lookup_tbl, document))){
 		goto error;
 	}
-	if(!CPL_IS_OK(import_objects_json(CPL_ACTIVITY, CPL_ACTIVITY_STR, bundle_id, lookup_tbl, document))){
+	if(!CPL_IS_OK(import_objects_json(CPL_ACTIVITY, CPL_ACTIVITY_STR, lookup_tbl, document))){
 		goto error;
 	}
 
@@ -1936,11 +2045,15 @@ import_document_json(const std::string& json_string,
 
 		cpl_id_t source;
 		if(CPL_IS_OK(cpl_lookup_object(pair.first.c_str(), pair.second.c_str(), CPL_NONE, &source))){
-
+            cpl_id_t relation_id;
 			if(!CPL_IS_OK(cpl_add_relation(source, id_string.first,
-						ALTERNATEOF, NULL))){
+						ALTERNATEOF, &relation_id))){
 				goto error;		
 			}
+            if(!CPL_IS_OK(cpl_add_relation(bundle_id, relation_id,
+                                           BUNDLERELATION, NULL))){
+                goto error;
+            }
 		}
 	}
 
@@ -2069,7 +2182,23 @@ export_objects_json(const std::vector<cpl_id_t>& bundles,
 				if(full_prop_name != "") full_prop_name.append(":");
 				full_prop_name.append(property.key);
 
-				properties[full_prop_name] = property.value;
+				switch (property.type) {
+				    case STRINGPROPERTY:
+                        properties[full_prop_name] = property.value;
+                        break;
+                    case INTEGERPROPERTY:
+                        properties[full_prop_name] = std::stoi(property.value);
+                        break;
+                    case FLOATPROPERTY:
+                        properties[full_prop_name] = std::stod(property.value);
+                        break;
+                    case BOOLEANPROPERTY:
+                        properties[full_prop_name] = property.value == "1";
+                        break;
+				    default:
+                        properties[full_prop_name] = property.type;
+                }
+
 			}
 
 			property_vec.clear();

@@ -980,12 +980,29 @@ class cpl_object:
         '''
         return str(self.id)
 
-    def add_property(self, prefix, name, value):
+    def add_string_property(self, prefix, name, value):
         '''
         Add name/value pair as a property to current object.
         '''
-        return CPLDirect.cpl_add_object_property(self.id, prefix, name, value)
+        return CPLDirect.cpl_add_object_string_property(self.id, prefix, name, value)
 
+    def add_integer_property(self, prefix, name, value):
+        '''
+        Add name/value pair as a property to current object.
+        '''
+        return CPLDirect.cpl_add_object_integer_property(self.id, prefix, name, value)
+
+    def add_float_property(self, prefix, name, value):
+        '''
+        Add name/value pair as a property to current object.
+        '''
+        return CPLDirect.cpl_add_object_float_property(self.id, prefix, name, value)
+
+    def add_boolean_property(self, prefix, name, value):
+        '''
+        Add name/value pair as a property to current object.
+        '''
+        return CPLDirect.cpl_add_object_boolean_property(self.id, prefix, name, value)
 
     def info(self):
         '''

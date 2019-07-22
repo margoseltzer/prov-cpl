@@ -141,6 +141,8 @@ typedef struct cplxx_property_entry {
 	/// The property value
 	std::string value;
 
+	/// The type value
+    int type;
 } cplxx_property_entry_t;
 
 /**
@@ -275,6 +277,7 @@ cpl_cb_collect_properties_vector(const cpl_id_t id,
 								 const char* prefix,
 								 const char* key,
 								 const char* value,
+								 const int type,
 								 void* context);
 
 /**

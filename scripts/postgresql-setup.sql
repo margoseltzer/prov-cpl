@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS cpl_relation_properties (
       prefix VARCHAR(255) NOT NULL,
       name VARCHAR(255) NOT NULL,
       value VARCHAR(4095) NOT NULL,
+      type INT NOT NULL,
       FOREIGN KEY(id)
             REFERENCES cpl_relations(id)
             ON DELETE CASCADE);
@@ -126,6 +127,7 @@ CREATE TABLE IF NOT EXISTS cpl_object_properties (
        prefix VARCHAR(255) NOT NULL,
        name VARCHAR(255) NOT NULL,
        value VARCHAR(4095) NOT NULL,
+       type INT NOT NULL,
        FOREIGN KEY(id)
            REFERENCES cpl_objects(id)
            ON DELETE CASCADE);
@@ -145,7 +147,8 @@ CREATE OR REPLACE RULE cpl_relation_properties_ignore_duplicate_inserts AS
            FROM cpl_relation_properties
           WHERE cpl_relation_properties.id = NEW.id 
           AND cpl_relation_properties.prefix = NEW.prefix
-          AND cpl_relation_properties.name = NEW.name)) 
+          AND cpl_relation_properties.name = NEW.name
+          AND cpl_relation_properties.type = NEW.type))
       DO INSTEAD NOTHING;
 
 CREATE OR REPLACE RULE cpl_object_properties_ignore_duplicate_inserts AS
@@ -154,7 +157,8 @@ CREATE OR REPLACE RULE cpl_object_properties_ignore_duplicate_inserts AS
            FROM cpl_object_properties
           WHERE cpl_object_properties.id = NEW.id 
           AND cpl_object_properties.prefix = NEW.prefix
-          AND cpl_object_properties.name = NEW.name)) 
+          AND cpl_object_properties.name = NEW.name
+          AND cpl_object_properties.type = NEW.type))
       DO INSTEAD NOTHING;
 
 CREATE OR REPLACE RULE cpl_bundle_properties_ignore_duplicate_inserts AS

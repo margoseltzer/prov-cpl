@@ -250,6 +250,7 @@ typedef cpl_return_t (*cpl_property_iterator_t)
 						 const char* prefix,
 						 const char* key,
 						 const char* value,
+						 const int type,
 						 void* context);
 
 /**
@@ -327,6 +328,15 @@ extern cpl_session_t cpl_session;
 #define CPL_IS_RELATION_TYPE(r)			((r) > 0 && (r) < 20)
 
 #define CPL_NUM_R_TYPES					19
+
+/***************************************************************************/
+/** Object Property Types                                                 **/
+/***************************************************************************/
+#define     STRINGPROPERTY              0
+#define     INTEGERPROPERTY             1
+#define     FLOATPROPERTY               2
+#define     BOOLEANPROPERTY             3
+
 /***************************************************************************/
 /** Return Codes                                                          **/
 /***************************************************************************/
@@ -660,11 +670,56 @@ cpl_lookup_or_create_object(const char* prefix,
  * @return CPL_OK or an error code
  */
 EXPORT cpl_return_t
-cpl_add_object_property(const cpl_id_t id,
+cpl_add_object_string_property(const cpl_id_t id,
 					    const char* prefix,
 					    const char* key,
-	                    const char* value,
-	                    const char* type);
+	                    const char* value);
+
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+EXPORT cpl_return_t
+cpl_add_object_integer_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const int value);
+
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+EXPORT cpl_return_t
+cpl_add_object_float_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const float value);
+
+/**
+ * Add a property to the given object.
+ *
+ * @param id the object ID
+ * @param prefix the prefix
+ * @param key the key
+ * @param value the value
+ * @return CPL_OK or an error code
+ */
+EXPORT cpl_return_t
+cpl_add_object_boolean_property(const cpl_id_t id,
+                        const char* prefix,
+                        const char* key,
+                        const bool value);
+
 
 /**
 * Add a relation
