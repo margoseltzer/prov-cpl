@@ -344,20 +344,28 @@ public class test {
 		 * Add object properties
 		 */
 
-		System.out.print("entity.addProperty(\"LABEL\", \"1\")");
-		entity.addProperty(PREFIX, "LABEL", "1");
+		System.out.print("entity.addStringProperty(\"LABEL\", \"1\")");
+		entity.addStringProperty(PREFIX, "LABEL", "1");
 		System.out.println();
 
-		System.out.print("agent.addProperty(\"LABEL\", \"2\")");
-		agent.addProperty(PREFIX, "LABEL", "2");
+		System.out.print("entity.addNumericalProperty(\"LABEL\", 2.5)");
+		entity.addNumericalProperty(PREFIX, "LABEL", 2.5f);
 		System.out.println();
 
-		System.out.print("activity.addProperty(\"LABEL\", \"3\")");
-		activity.addProperty(PREFIX, "LABEL", "3");
+		System.out.print("entity.addBooleanProperty(\"LABEL\", true)");
+		entity.addBooleanProperty(PREFIX, "LABEL", true);
 		System.out.println();
 
-		System.out.print("activity.addProperty(\"TAG\", \"Hello\")");
-		activity.addProperty(PREFIX, "TAG", "Hello");
+		System.out.print("agent.addStringProperty(\"LABEL\", \"2\")");
+		agent.addStringProperty(PREFIX, "LABEL", "2");
+		System.out.println();
+
+		System.out.print("activity.addStringProperty(\"LABEL\", \"3\")");
+		activity.addStringProperty(PREFIX, "LABEL", "3");
+		System.out.println();
+
+		System.out.print("activity.addStringProperty(\"TAG\", \"Hello\")");
+		activity.addStringProperty(PREFIX, "TAG", "Hello");
 		System.out.println();
 
 		System.out.println();
@@ -369,30 +377,49 @@ public class test {
 
 		System.out.println("Properties of activity:");
 
-		System.out.println("activity.getProperties():");
-		for (CPLPropertyEntry e : activity.getProperties()) {
+		System.out.println("activity.getStringProperties():");
+		for (CPLPropertyEntry e : activity.getStringProperties()) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("activity.getProperties(\"LABEL\"):");
-		for (CPLPropertyEntry e : activity.getProperties(PREFIX, "LABEL")) {
+		System.out.println("activity.getStringProperties(\"LABEL\"):");
+		for (CPLPropertyEntry e : activity.getStringProperties(PREFIX, "LABEL")) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("activity.getProperties(\"HELLO\"):");
-		for (CPLPropertyEntry e : activity.getProperties(PREFIX, "HELLO")) {
+		System.out.println("activity.getStringProperties(\"TAG\"):");
+		for (CPLPropertyEntry e : activity.getStringProperties(PREFIX, "TAG")) {
 			System.out.println("  " + e);
 		}
 
 		System.out.println();
 
 
+		System.out.println("Properties of entity:");
+
+		System.out.println("entity.getStringProperties():");
+		for (CPLPropertyEntry e : entity.getStringProperties()) {
+			System.out.println("  " + e);
+		}
+
+		System.out.println("entity.getNumericalProperties():");
+		for (CPLPropertyEntry e : entity.getNumericalProperties()) {
+			System.out.println("  " + e);
+		}
+
+		System.out.println("entity.getBooleanProperties():");
+		for (CPLPropertyEntry e : entity.getBooleanProperties()) {
+			System.out.println("  " + e);
+		}
+
+		System.out.println();
+
 		/*
 		 * Lookup object by property
 		 */
 
-		System.out.print("CPLObject.lookupByProperty(\"LABEL\", \"3\")");
-		Vector<CPLObject> lv = CPLObject.lookupByProperty(PREFIX, "LABEL",
+		System.out.print("CPLObject.lookupByStringProperty(\"LABEL\", \"3\")");
+		Vector<CPLObject> lv = CPLObject.lookupByStringProperty(PREFIX, "LABEL",
 				"3");
 		System.out.print(": ");
 		if (lv.contains(activity)) {
@@ -405,47 +432,100 @@ public class test {
 
 		System.out.println();
 
+		System.out.print("CPLObject.lookupByNumericalProperty(\"LABEL\", 2.5)");
+		lv = CPLObject.lookupByNumericalProperty(PREFIX, "LABEL",
+				2.5f);
+		System.out.print(": ");
+		if (lv.contains(entity)) {
+			System.out.println("found");
+		}
+		else {
+			System.out.println("not found");
+			throw new RuntimeException("Lookup by property did not return the correct object");
+		}
+
+		System.out.println();
+
+		System.out.print("CPLObject.lookupByBooleanProperty(\"LABEL\", true)");
+		lv = CPLObject.lookupByBooleanProperty(PREFIX, "LABEL",
+				true);
+		System.out.print(": ");
+		if (lv.contains(entity)) {
+			System.out.println("found");
+		}
+		else {
+			System.out.println("not found");
+			throw new RuntimeException("Lookup by property did not return the correct object");
+		}
+
+		System.out.println();
 
 		/*
 		 * Add relation properties
 		 */
 
-		System.out.print("r1.addProperty(\"LABEL\", \"1\")");
-		r1.addProperty(PREFIX, "LABEL", "1");
+		System.out.print("r1.addStringProperty(\"LABEL\", \"1\")");
+		r1.addStringProperty(PREFIX, "LABEL", "1");
 		System.out.println();
 
-		System.out.print("r2.addProperty(\"LABEL\", \"2\")");
-		r2.addProperty(PREFIX, "LABEL", "2");
+		System.out.print("r1.addNumericalProperty(\"LABEL\", 4.5)");
+		r1.addNumericalProperty(PREFIX, "LABEL", 4.5f);
 		System.out.println();
 
-		System.out.print("r3.addProperty(\"LABEL\", \"3\")");
-		r3.addProperty(PREFIX, "LABEL", "3");
+		System.out.print("r1.addBooleanProperty(\"LABEL\", false)");
+		r1.addBooleanProperty(PREFIX, "LABEL", false);
 		System.out.println();
 
-		System.out.print("r3.addProperty(\"TAG\", \"Hello\")");
-		r3.addProperty(PREFIX, "TAG", "Hello");
+		System.out.print("r2.addStringProperty(\"LABEL\", \"2\")");
+		r2.addStringProperty(PREFIX, "LABEL", "2");
+		System.out.println();
+
+		System.out.print("r3.addStringProperty(\"LABEL\", \"3\")");
+		r3.addStringProperty(PREFIX, "LABEL", "3");
+		System.out.println();
+
+		System.out.print("r3.addStringProperty(\"TAG\", \"Hello\")");
+		r3.addStringProperty(PREFIX, "TAG", "Hello");
 		System.out.println();
 
 		System.out.println();
+
 
 		/*
 		 * List relation properties
 		 */
 
+		System.out.println("Properties of r1:");
+
+		System.out.println("r1.getStringProperties():");
+		for (CPLPropertyEntry e : r1.getStringProperties()) {
+			System.out.println("  " + e);
+		}
+
+		System.out.println("r1.getNumericalProperties():");
+		for (CPLPropertyEntry e : r1.getNumericalProperties()) {
+			System.out.println("  " + e);
+		}
+
+		System.out.println("r1.getBooleanProperties():");
+		for (CPLPropertyEntry e : r1.getBooleanProperties()) {
+			System.out.println("  " + e);
+		}
+
 		System.out.println("Properties of r3:");
 
-		System.out.println("r3.getProperties():");
-		for (CPLPropertyEntry e : r3.getProperties()) {
+		System.out.println("r3.getStringProperties():");
+		for (CPLPropertyEntry e : r3.getStringProperties()) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("r3.getProperties(\"LABEL\"):");
-		for (CPLPropertyEntry e : r3.getProperties(PREFIX, "LABEL")) {
+		System.out.println("r3.getStringProperties(\"LABEL\"):");
+		for (CPLPropertyEntry e : r3.getStringProperties(PREFIX, "LABEL")) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("r3.getProperties(\"HELLO\"):");
-		for (CPLPropertyEntry e : r3.getProperties(PREFIX, "HELLO")) {
+		System.out.println("r3.getStringProperties(\"HELLO\"):");
+		for (CPLPropertyEntry e : r3.getStringProperties(PREFIX, "HELLO")) {
 			System.out.println("  " + e);
 		}
 
@@ -456,12 +536,16 @@ public class test {
 		 */
 
 
-		System.out.print("bundle.addProperty(\"LABEL\", \"3\")");
-		bundle.addProperty(PREFIX, "LABEL", "3");
+		System.out.print("bundle.addStringProperty(\"LABEL\", \"3\")");
+		bundle.addStringProperty(PREFIX, "LABEL", "3");
 		System.out.println();
 
-		System.out.print("bundle.addProperty(\"TAG\", \"Hello\")");
-		bundle.addProperty(PREFIX, "TAG", "Hello");
+		System.out.print("bundle.addNumericalProperty(\"TAG\", 5)");
+		bundle.addNumericalProperty(PREFIX, "TAG", 5f);
+		System.out.println();
+
+		System.out.print("bundle.addBooleanProperty(\"TAG\", true)");
+		bundle.addBooleanProperty(PREFIX, "TAG", true);
 		System.out.println();
 
 		System.out.println();
@@ -472,18 +556,18 @@ public class test {
 
 		System.out.println("Properties of bundle:");
 
-		System.out.println("bundle.getProperties():");
-		for (CPLPropertyEntry e : bundle.getProperties()) {
+		System.out.println("bundle.getStringProperties():");
+		for (CPLPropertyEntry e : bundle.getStringProperties()) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("bundle.getProperties(\"LABEL\"):");
-		for (CPLPropertyEntry e : bundle.getProperties(PREFIX, "LABEL")) {
+		System.out.println("bundle.getStringProperties(\"LABEL\"):");
+		for (CPLPropertyEntry e : bundle.getStringProperties(PREFIX, "LABEL")) {
 			System.out.println("  " + e);
 		}
 
-		System.out.println("bundle.getProperties(\"HELLO\"):");
-		for (CPLPropertyEntry e : bundle.getProperties(PREFIX, "HELLO")) {
+		System.out.println("bundle.getStringProperties(\"HELLO\"):");
+		for (CPLPropertyEntry e : bundle.getStringProperties(PREFIX, "HELLO")) {
 			System.out.println("  " + e);
 		}
 

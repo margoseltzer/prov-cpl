@@ -61,10 +61,7 @@ bundle_name = 'Bundle'
 print ('Create bundle name:' +
 	bundle_name)
 bundle = c.create_bundle(bundle_name, prefix)
-CPL.p_bundle(bundle, False)
-
-print ('Add bundle prefix:' + prefix + ':' + iri)
-bundle.add_prefix(prefix, iri)
+CPL.p_object(bundle)
 
 entity_name = 'Entity'
 entity_type = CPL.ENTITY
@@ -267,7 +264,7 @@ print
 print '----- Bundle Info -----'
 print
 
-CPL.p_bundle(bundle)
+CPL.p_object(bundle)
 
 #Object info
 print
@@ -285,28 +282,29 @@ print '----- Properties -----'
 print
 
 print 'Adding LABEL/1 to entity'
-entity.add_property(prefix, 'LABEL', '1')
+entity.add_string_property(prefix, 'LABEL', '1')
 
 print 'Adding LABEL/2 to bundle'
-agent.add_property(prefix, 'LABEL', '2')
+agent.add_string_property(prefix, 'LABEL', '2')
 
-print 'Adding LABEL/3 to entity'
-activity.add_property(prefix, 'LABEL', '3')
+print 'Adding LABEL/3.5 to entity'
+activity.add_numerical_property(prefix, 'LABEL', 3.5)
 
-print 'Adding TAG/Hello to agent'
-activity.add_property(prefix, 'TAG', 'HELLO')
+print 'Adding TAG/true to agent'
+activity.add_boolean_property(prefix, 'TAG', True)
 
 print 'Getting properties for entity'
-print entity.properties()
+print entity.string_properties()
 
 print 'Getting properties for agent'
-print agent.properties()
+print agent.string_properties()
 
 print 'Getting properties for activity'
-print activity.properties()
+print activity.numerical_properties()
+print activity.boolean_properties()
 
 print 'Getting all objects with LABEL/3 property'
-tuples = c.lookup_by_property(prefix, 'LABEL', '3')
+tuples = c.lookup_by_numerical_property(prefix, 'LABEL', 3.5)
 i = 0
 for t in tuples:
 	print str(t)
@@ -316,35 +314,36 @@ for t in tuples:
 		break
 
 print 'Adding LABEL/1 to r1'
-r1.add_property(prefix, 'LABEL', '1')
+r1.add_string_property(prefix, 'LABEL', '1')
 
 print 'Adding LABEL/2 to r2'
-r2.add_property(prefix, 'LABEL', '2')
+r2.add_numerical_property(prefix, 'LABEL', 2.5)
 
 print 'Adding LABEL/3 to r3'
-r3.add_property(prefix, 'LABEL', '3')
+r3.add_boolean_property(prefix, 'LABEL', False)
 
 print 'Adding TAG/Hello to r3'
-r3.add_property(prefix, 'TAG', 'Hello')
+r3.add_string_property(prefix, 'TAG', 'Hello')
 
 print 'Getting properties for r1'
-print r1.properties()
+print r1.string_properties()
 
 print 'Getting properties for r2'
-print r2.properties()
+print r2.numerical_properties()
 
 print 'Getting properties for r3'
-print r3.properties()
+print r3.string_properties()
+print r3.boolean_properties()
 
 
 print 'Adding LABEL/3 to bundle'
-bundle.add_property(prefix, 'LABEL', '3')
+bundle.add_string_property(prefix, 'LABEL', '3')
 
 print 'Adding TAG/Hello to bundle'
-bundle.add_property(prefix, 'TAG', 'Hello')
+bundle.add_string_property(prefix, 'TAG', 'Hello')
 
 print 'Getting properties for bundle'
-print bundle.properties()
+print bundle.string_properties()
 
 
 # Exit

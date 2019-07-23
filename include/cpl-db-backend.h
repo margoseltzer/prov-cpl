@@ -193,7 +193,8 @@ typedef struct _cpl_db_backend_t {
                            const cpl_id_t id,
                            const char* prefix,
                            const char* key,
-                           const char* value);
+                           const char* value,
+                           const int type);
 	
 	/**
 	 * Create a bundle.
@@ -404,6 +405,7 @@ typedef struct _cpl_db_backend_t {
 							 const cpl_id_t id,
 							 const char* prefix,
 							 const char* key,
+							 int type,
 							 cpl_property_iterator_t callback,
 							 void* context);
 
@@ -423,6 +425,7 @@ typedef struct _cpl_db_backend_t {
 								 const char* prefix,
 								 const char* key,
 								 const char* value,
+								 const int type,
 								 cpl_property_iterator_t callback,
 								 void* context);
 
@@ -444,6 +447,7 @@ typedef struct _cpl_db_backend_t {
 								 const cpl_id_t id,
 								 const char* prefix,
 								 const char* key,
+								 const int type,
 								 cpl_property_iterator_t callback,
 								 void* context);
 

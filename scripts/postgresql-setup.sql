@@ -72,14 +72,6 @@ CREATE TABLE IF NOT EXISTS cpl_sessions (
        initialization_time TIMESTAMP DEFAULT NOW(),
        PRIMARY KEY (id));
 
-CREATE TABLE IF NOT EXISTS cpl_bundles (
-        id BIGSERIAL,
-       prefix VARCHAR(255),
-       name VARCHAR(255),
-       type INT,
-       creation_time TIMESTAMP DEFAULT NOW(),
-       PRIMARY KEY(id));
-
 CREATE TABLE IF NOT EXISTS cpl_objects (
        id BIGSERIAL,
        prefix VARCHAR(255),
@@ -101,15 +93,6 @@ CREATE TABLE IF NOT EXISTS cpl_prefixes (
       iri VARCHAR(4095) NOT NULL,
       FOREIGN KEY(id)
             REFERENCES cpl_objects(id)
-            ON DELETE CASCADE);
-
-CREATE TABLE IF NOT EXISTS cpl_bundle_properties (
-      id BIGINT,
-      prefix VARCHAR(255) NOT NULL,
-      name VARCHAR(255) NOT NULL,
-      value VARCHAR(4095) NOT NULL,
-      FOREIGN KEY(id)
-            REFERENCES cpl_bundles(id)
             ON DELETE CASCADE);
 
 CREATE TABLE IF NOT EXISTS cpl_relation_properties (
@@ -161,15 +144,6 @@ CREATE OR REPLACE RULE cpl_object_properties_ignore_duplicate_inserts AS
           AND cpl_object_properties.type = NEW.type))
       DO INSTEAD NOTHING;
 
-CREATE OR REPLACE RULE cpl_bundle_properties_ignore_duplicate_inserts AS
-    ON INSERT TO cpl_bundle_properties
-   WHERE (EXISTS ( SELECT 1
-           FROM cpl_bundle_properties
-          WHERE cpl_bundle_properties.id = NEW.id
-          AND cpl_bundle_properties.prefix = NEW.prefix
-          AND cpl_bundle_properties.name = NEW.name)) 
-      DO INSTEAD NOTHING;
-
 CREATE OR REPLACE RULE cpl_prefixes_ignore_duplicate_inserts AS
     ON INSERT TO cpl_prefixes
    WHERE (EXISTS ( SELECT 1
@@ -184,14 +158,11 @@ CREATE OR REPLACE RULE cpl_prefixes_ignore_duplicate_inserts AS
 -- Grant the appropriate privileges
 --
 GRANT ALL PRIVILEGES ON TABLE cpl_sessions TO cpl WITH GRANT OPTION; 
-GRANT ALL PRIVILEGES ON TABLE cpl_bundles TO cpl WITH GRANT OPTION; 
 GRANT ALL PRIVILEGES ON TABLE cpl_objects TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON TABLE cpl_relations TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON TABLE cpl_relation_properties TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON TABLE cpl_object_properties TO cpl WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON TABLE cpl_bundle_properties TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON TABLE cpl_prefixes TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON SEQUENCE cpl_objects_id_seq TO cpl WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON SEQUENCE cpl_bundles_id_seq TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON SEQUENCE cpl_sessions_id_seq TO cpl WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON SEQUENCE cpl_relations_id_seq TO cpl WITH GRANT OPTION;
