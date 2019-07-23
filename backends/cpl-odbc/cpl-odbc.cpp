@@ -3362,7 +3362,7 @@ retry:
 						 (const char*) (*i)->prefix,
 						 (const char*) (*i)->key,
 						 (const char*) (*i)->value,
-                         (int) (*i)->type,
+                         0,
                          context);
 			if (!CPL_IS_OK(r)) goto err_free;
 		}

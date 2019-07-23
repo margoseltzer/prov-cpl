@@ -90,7 +90,6 @@ extern "C" {
 #define CPL_KEY_LEN					255
 #define CPL_VALUE_LEN				4095
 #define CPL_STMT_MAX				4
-#define CPL_TYPE_LEN				255
 
 
 /***************************************************************************/
