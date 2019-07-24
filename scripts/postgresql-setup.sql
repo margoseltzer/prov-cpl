@@ -117,8 +117,6 @@ CREATE TABLE IF NOT EXISTS cpl_object_properties (
 
 INSERT INTO cpl_sessions (id, mac_address, username, pid, program, cmdline)
   VALUES (0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO cpl_bundles (id, prefix, name, type)
-  VALUES (0, NULL, NULL, NULL);
 INSERT INTO cpl_objects (id, prefix, name, type)
   VALUES (0, NULL, NULL, NULL);
 INSERT INTO cpl_relations (id, from_id, to_id, type)

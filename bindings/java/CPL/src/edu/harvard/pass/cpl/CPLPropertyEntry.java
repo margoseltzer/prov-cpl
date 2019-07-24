@@ -65,7 +65,7 @@ public class CPLPropertyEntry<T> {
      * @param key the property name
      * @param value the property value
 	 */
-	CPLPropertyEntry(String prefix, String key, T value) {
+	public CPLPropertyEntry(String prefix, String key, T value) {
 		this.prefix = prefix;
         this.key = key;
         this.value = value;
