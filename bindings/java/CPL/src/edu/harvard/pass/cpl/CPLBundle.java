@@ -45,7 +45,7 @@ import java.math.BigInteger;
  *
  * @author Jackson Okuhn
  */
-public class CPLBundle extends edu.harvard.pass.cpl.CPLObject {
+public class CPLBundle extends CPLObject {
 
 	/// The creation session (cache)
 	private CPLSession creationSession = null;
@@ -167,49 +167,6 @@ public class CPLBundle extends edu.harvard.pass.cpl.CPLObject {
 		return r;
 	}
 
-
-	/**
-	 * Determine whether this and the other bundle are equal
-	 *
-	 * @param other the other bundle
-	 * @return true if they are equal
-	 */
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof CPLBundle) {
-			CPLBundle o = (CPLBundle) other;
-			return this.id.equals(o.id);
-		}
-		else {
-			return false;
-		}
-	}
-
-
-	/**
-	 * Compute the hash code of this bundle
-	 *
-	 * @return the hash code
-	 */
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
-
-
-	/**
-	 * Return a string representation of the bundle. Note that this is based
-	 * on the internal bundle ID, since the name might not be known.
-	 *
-	 *
-	 * @return the string representation
-	 */
-	@Override
-	public String toString() {
-		return id.toString(16);
-	}
-
-
 	/**
 	 * Fetch the bundle info if it is not already present
 	 *
@@ -256,27 +213,6 @@ public class CPLBundle extends edu.harvard.pass.cpl.CPLObject {
 		return true;
 	}
 
-
-	/**
-	 * Get the ID of the bundle
-	 *
-	 * @return the internal ID of this bundle
-	 */
-	public BigInteger getId() {
-		return id;
-	}
-
-	/**
-	 * Get the bundle name
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		if (name == null) fetchInfo();
-		return name;
-	}
-
-
 	/**
 	 * Get the session that created this bundle
 	 *
@@ -285,49 +221,6 @@ public class CPLBundle extends edu.harvard.pass.cpl.CPLObject {
 	public CPLSession getCreationSession() {
 		if (!knowCreationInfo) fetchInfo();
 		return creationSession;
-	}
-
-
-	/**
-	 * Get the creation time of this bundle
-	 *
-	 * @return the time expressed as Unix time
-	 */
-	public long getCreationTime() {
-		if (!knowCreationInfo) fetchInfo();
-		return creationTime;
-	}
-
-
-	/**
-	 * Create a more detailed string representation of the bundle
-	 *
-	 * @param detail whether to provide even more detail
-	 * @return a multi-line string describing the bundle
-	 */
-	public String toString(boolean detail) {
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("Name      ");
-		if (detail) sb.append("          : "); else sb.append(": ");
-		sb.append(getName());
-		sb.append("\n");
-
-		if (detail) {
-
-			sb.append("Creation session    : ");
-			sb.append(getCreationSession());
-			sb.append("\n");
-
-			sb.append("Creation time       : ");
-			sb.append(new java.sql.Date(1000L * getCreationTime()));
-			sb.append(" ");
-			sb.append(new java.sql.Time(1000L * getCreationTime()));
-			sb.append("\n");
-		}
-
-		return sb.toString();
 	}
 
 	/**
