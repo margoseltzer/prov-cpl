@@ -314,7 +314,7 @@ public class test {
 
 		System.out.print("CPLObject.getBundleRelations(bundle)");
 		Vector<CPLRelation> brvec = bundle.getRelations();
-		System.out.println(": " + bovec.size() + " results");
+		System.out.println(": " + brvec.size() + " results");
 		if(brvec.size() != 3 || !brvec.contains(r1) || !brvec.contains(r2) || !brvec.contains(r3)){
 			throw new RuntimeException("getBundleRelations() returned an incorrect vector");
 		}
